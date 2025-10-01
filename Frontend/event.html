@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Details | CharityElite</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: #f5f5f5;
+        }
+        .heading-font {
+            font-family: 'Playfair Display', serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+        }
+        .card-gradient {
+            background: linear-gradient(145deg, #1e1e1e 0%, #151515 100%);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        .gold-accent {
+            color: #d4af37;
+        }
+        .gold-border {
+            border-color: #d4af37;
+        }
+        .nav-gradient {
+            background: linear-gradient(90deg, #1a1a1a 0%, #0f0f0f 100%);
+            border-bottom: 1px solid #333;
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
+            color: #0a0a0a;
+            transition: all 0.3s ease;
+        }
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+        }
+        .progress-bar {
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #d4af37 0%, #f4d03f 100%);
+            height: 8px;
+            border-radius: 10px;
+        }
+        .event-detail-card {
+            transition: all 0.3s ease;
+            border: 1px solid #333;
+        }
+        .section-divider {
+            border-top: 1px solid #333;
+        }
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #d4af37;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .event-hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                        url('https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+<body class="gradient-bg">
+    <!-- Navigation -->
+    <nav class="nav-gradient sticky top-0 z-50 py-4">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <a href="index.html" class="flex items-center space-x-2">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-gold-500 to-gold-700 flex items-center justify-center">
+                        <i class="fas fa-hands-helping text-black text-lg"></i>
+                    </div>
+                    <span class="heading-font text-2xl font-bold">Charity<span class="gold-accent">Elite</span></span>
+                </a>
+            </div>
+            <div class="hidden md:flex space-x-8">
+                <a href="index.html" class="text-white hover:gold-accent font-medium transition-colors border-b-2 border-transparent hover:border-gold-500 pb-1">Home</a>
+                <a href="search.html" class="text-white hover:gold-accent font-medium transition-colors border-b-2 border-transparent hover:border-gold-500 pb-1">Events</a>
+                <a href="#" class="text-white hover:gold-accent font-medium transition-colors border-b-2 border-transparent hover:border-gold-500 pb-1">Organizations</a>
+                <a href="#" class="text-white hover:gold-accent font-medium transition-colors border-b-2 border-transparent hover:border-gold-500 pb-1">Impact</a>
+                <a href="#" class="text-white hover:gold-accent font-medium transition-colors border-b-2 border-transparent hover:border-gold-500 pb-1">Contact</a>
+            </div>
+            <div class="flex items-center space-x-4">
+                <a href="#" class="btn-gold font-semibold px-6 py-2 rounded-lg text-sm">Donate</a>
+                <button class="md:hidden text-white">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Event Hero Section -->
+    <header id="event-hero" class="event-hero py-20 relative overflow-hidden">
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="max-w-3xl">
+                <div id="loading-state" class="text-center py-12">
+                    <div class="loading-spinner mb-4"></div>
+                    <p class="text-gray-400">Loading event details...</p>
+                </div>
+                
+                <div id="error-state" class="text-center py-12 hidden">
+                    <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Failed to Load Event</h3>
+                    <p class="text-gray-400 mb-4" id="error-message">There was an error loading the event details. Please try again later.</p>
+                    <button id="retry-button" class="btn-gold font-semibold px-6 py-3 rounded-lg">Retry</button>
+                </div>
+                
+                <div id="event-content" class="hidden">
+                    <h1 id="event-title" class="heading-font text-5xl md:text-6xl font-bold mb-6 leading-tight"></h1>
+                    <p id="event-description" class="text-xl text-gray-300 mb-10 max-w-2xl"></p>
+                    <div class="flex flex-wrap gap-4 mb-6">
+                        <div class="flex items-center bg-black bg-opacity-50 px-4 py-2 rounded-full">
+                            <i class="far fa-calendar gold-accent mr-2"></i>
+                            <span id="event-date"></span>
+                        </div>
+                        <div class="flex items-center bg-black bg-opacity-50 px-4 py-2 rounded-full">
+                            <i class="fas fa-map-marker-alt gold-accent mr-2"></i>
+                            <span id="event-location"></span>
+                        </div>
+                        <div class="flex items-center bg-black bg-opacity-50 px-4 py-2 rounded-full">
+                            <i class="fas fa-tag gold-accent mr-2"></i>
+                            <span id="event-category"></span>
+                        </div>
+                    </div>
+                    <div class="flex space-x-4">
+                        <button id="donate-btn" class="btn-gold font-semibold px-8 py-4 rounded-lg">Donate Now</button>
+                        <button id="register-btn" class="border border-gray-300 text-white font-semibold px-8 py-4 rounded-lg hover:bg-gray-800 transition-all">Register for Event</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Event Details Section -->
+    <main class="container mx-auto px-6 py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Main Content -->
+            <div class="lg:col-span-2">
+                <div class="card-gradient rounded-xl p-8 event-detail-card mb-8">
+                    <h2 class="heading-font text-3xl font-bold mb-6 gold-accent">About This Event</h2>
+                    <div id="event-full-description" class="text-gray-300 leading-relaxed space-y-4">
+                        <!-- Event description will be populated here -->
+                    </div>
+                </div>
+
+                <div class="card-gradient rounded-xl p-8 event-detail-card">
+                    <h2 class="heading-font text-3xl font-bold mb-6 gold-accent">Fundraising Progress</h2>
+                    <div class="mb-6">
+                        <div class="flex justify-between text-lg mb-4">
+                            <span class="text-gray-400">Progress Towards Goal</span>
+                            <span class="gold-accent font-medium" id="progress-text">$0 / $0</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <p class="text-gray-400 mb-6">Your contribution helps us make a meaningful impact. Every donation brings us closer to our goal.</p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button class="btn-gold font-semibold py-4 rounded-lg flex-1 text-center">Make a Donation</button>
+                        <button class="border border-gray-600 text-white font-semibold py-4 rounded-lg hover:bg-gray-800 transition-all flex-1 text-center">Share This Event</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="card-gradient rounded-xl p-6 event-detail-card mb-8">
+                    <h3 class="heading-font text-xl font-bold mb-6 gold-accent">Event Details</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <i class="far fa-calendar gold-accent mr-3 mt-1"></i>
+                            <div>
+                                <p class="font-medium">Date & Time</p>
+                                <p id="event-datetime" class="text-gray-400"></p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-map-marker-alt gold-accent mr-3 mt-1"></i>
+                            <div>
+                                <p class="font-medium">Location</p>
+                                <p id="event-full-location" class="text-gray-400"></p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-tag gold-accent mr-3 mt-1"></i>
+                            <div>
+                                <p class="font-medium">Category</p>
+                                <p id="event-category-full" class="text-gray-400"></p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-users gold-accent mr-3 mt-1"></i>
+                            <div>
+                                <p class="font-medium">Organized By</p>
+                                <p id="event-organization" class="text-gray-400"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-gradient rounded-xl p-6 event-detail-card">
+                    <h3 class="heading-font text-xl font-bold mb-6 gold-accent">Contact Information</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-envelope gold-accent mr-3"></i>
+                            <span id="contact-email" class="text-gray-400">contact@organization.org</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-phone gold-accent mr-3"></i>
+                            <span id="contact-phone" class="text-gray-400">+1 (555) 123-4567</span>
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-6 border-t border-gray-700">
+                        <h4 class="font-medium mb-4">Have questions about this event?</h4>
+                        <button class="w-full border border-gray-600 text-white font-semibold py-3 rounded-lg hover:bg-gray-800 transition-all text-center">
+                            Contact Organizer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-black py-12 section-divider">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="md:col-span-2">
+                    <div class="flex items-center space-x-2 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-gold-500 to-gold-700 flex items-center justify-center">
+                            <i class="fas fa-hands-helping text-black text-lg"></i>
+                        </div>
+                        <span class="heading-font text-2xl font-bold">Charity<span class="gold-accent">Elite</span></span>
+                    </div>
+                    <p class="text-gray-400 max-w-md mb-6">Connecting discerning philanthropists with high-impact charitable opportunities through exclusive events and partnerships.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-6">Quick Links</h3>
+                    <ul class="space-y-3">
+                        <li><a href="index.html" class="text-gray-400 hover:text-white transition-colors">Home</a></li>
+                        <li><a href="search.html" class="text-gray-400 hover:text-white transition-colors">Events</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Organizations</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Impact Reports</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-6">Contact</h3>
+                    <ul class="space-y-3 text-gray-400">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt gold-accent mr-3 mt-1"></i>
+                            <span>123 Philanthropy Ave, Global City</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-phone gold-accent mr-3"></i>
+                            <span>+1 (555) 123-4567</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-envelope gold-accent mr-3"></i>
+                            <span>contact@charityelite.org</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-500">
+                <p>&copy; 2023 CharityElite. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // API configuration
+        const API_BASE_URL = 'http://localhost:5000/api'; // Update this to match your server URL
+        
+        // DOM elements
+        const loadingState = document.getElementById('loading-state');
+        const errorState = document.getElementById('error-state');
+        const errorMessage = document.getElementById('error-message');
+        const retryButton = document.getElementById('retry-button');
+        const eventContent = document.getElementById('event-content');
+        
+        // Get event ID from URL parameters
+        function getEventIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+        
+        // Fetch event details from API
+        async function fetchEventDetails() {
+            const eventId = getEventIdFromUrl();
+            
+            if (!eventId) {
+                showError('No event ID provided in URL');
+                return;
+            }
+            
+            try {
+                // Show loading state
+                loadingState.classList.remove('hidden');
+                errorState.classList.add('hidden');
+                eventContent.classList.add('hidden');
+                
+                const response = await fetch(`${API_BASE_URL}/events/${eventId}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch event: ${response.status}`);
+                }
+                
+                const event = await response.json();
+                
+                // Hide loading state
+                loadingState.classList.add('hidden');
+                eventContent.classList.remove('hidden');
+                
+                // Render event details
+                renderEventDetails(event);
+                
+            } catch (error) {
+                console.error('Error fetching event details:', error);
+                
+                // Show error state
+                loadingState.classList.add('hidden');
+                errorState.classList.remove('hidden');
+                eventContent.classList.add('hidden');
+                errorMessage.textContent = error.message || 'There was an error loading the event details. Please try again later.';
+            }
+        }
+        
+        // Render event details to the DOM
+        function renderEventDetails(event) {
+            // Format date
+            const eventDate = new Date(event.event_date);
+            const formattedDate = eventDate.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            const formattedDateTime = eventDate.toLocaleString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric'
+            });
+            
+            // For demo purposes, we'll generate some random progress data
+            // In a real app, this would come from your database
+            const progressPercentage = Math.floor(Math.random() * 100);
+            const currentAmount = Math.floor(Math.random() * 100000);
+            const targetAmount = Math.floor(currentAmount / (progressPercentage / 100));
+            
+            // Update hero section
+            document.getElementById('event-title').textContent = event.name;
+            document.getElementById('event-description').textContent = event.description || 'An exclusive charity event for a noble cause.';
+            document.getElementById('event-date').textContent = formattedDate;
+            document.getElementById('event-location').textContent = event.location;
+            document.getElementById('event-category').textContent = event.category;
+            
+            // Update main content
+            document.getElementById('event-full-description').innerHTML = `
+                <p>${event.description || 'Join us for an exclusive charity event that brings together philanthropists, change-makers, and community leaders for an evening of inspiration and impact.'}</p>
+                <p>This event is organized by ${event.organization || 'our partner organization'} and aims to raise funds and awareness for a critical cause. Your participation will directly contribute to making a difference in the lives of those in need.</p>
+                <p>We invite you to be part of this special occasion where generosity meets purpose, creating lasting change in our community and beyond.</p>
+            `;
+            
+            // Update progress
+            document.getElementById('progress-text').textContent = `$${currentAmount.toLocaleString()} / $${targetAmount.toLocaleString()}`;
+            document.getElementById('progress-fill').style.width = `${progressPercentage}%`;
+            
+            // Update sidebar details
+            document.getElementById('event-datetime').textContent = formattedDateTime;
+            document.getElementById('event-full-location').textContent = event.location;
+            document.getElementById('event-category-full').textContent = event.category;
+            document.getElementById('event-organization').textContent = event.organization || 'CharityElite Partners';
+            
+            // Update contact information
+            if (event.contact_email) {
+                document.getElementById('contact-email').textContent = event.contact_email;
+            }
+            if (event.contact_phone) {
+                document.getElementById('contact-phone').textContent = event.contact_phone;
+            }
+            
+            // Add event listeners to buttons
+            document.getElementById('donate-btn').addEventListener('click', () => {
+                alert('Thank you for your interest in donating! This feature will be implemented soon.');
+            });
+            
+            document.getElementById('register-btn').addEventListener('click', () => {
+                alert('Thank you for your interest in this event! Registration will be available soon.');
+            });
+        }
+        
+        // Show error message
+        function showError(message) {
+            loadingState.classList.add('hidden');
+            errorState.classList.remove('hidden');
+            eventContent.classList.add('hidden');
+            errorMessage.textContent = message;
+        }
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Event Details page loaded');
+            
+            // Fetch event details when page loads
+            fetchEventDetails();
+            
+            // Add retry button functionality
+            retryButton.addEventListener('click', fetchEventDetails);
+        });
+    </script>
+</body>
+</html>
